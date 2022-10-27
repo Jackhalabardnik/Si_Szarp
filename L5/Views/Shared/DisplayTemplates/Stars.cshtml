@@ -1,0 +1,12 @@
+﻿@model int
+@for (int i = 0; i < 5; i++)
+{
+    if (i < Model)
+    {
+        @Html.Raw("&#x2605;")
+    }
+    else
+    {
+        @Html.Raw("&#x2606;")
+    }
+}
