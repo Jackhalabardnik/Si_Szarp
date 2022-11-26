@@ -23,6 +23,9 @@
                 @Html.DisplayNameFor(model => model.Description)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Genre)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.TrailerLink)
             </th>
             <th></th>
@@ -41,7 +44,16 @@
                 @Html.DisplayFor(modelItem => item.Description)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TrailerLink)
+                @Html.DisplayFor(modelItem => item.Genre.Name)
+            </td>
+            <td>
+                @if(item.TrailerLink != null) {
+                    @Html.DisplayFor(modelItem => item.TrailerLink)
+                }
+                else
+                {
+                    @Html.Raw("No link")
+                }
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

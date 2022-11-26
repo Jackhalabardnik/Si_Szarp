@@ -16,6 +16,21 @@ namespace L5.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.10");
 
+            modelBuilder.Entity("L5.Models.Genre", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Genres");
+                });
+
             modelBuilder.Entity("L5.Models.Movie", b =>
                 {
                     b.Property<int>("Id")
@@ -26,20 +41,36 @@ namespace L5.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("GenreId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Rating")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Title")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TrailerLink")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("GenreId");
+
                     b.ToTable("Movies");
+                });
+
+            modelBuilder.Entity("L5.Models.Movie", b =>
+                {
+                    b.HasOne("L5.Models.Genre", "Genre")
+                        .WithMany()
+                        .HasForeignKey("GenreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Genre");
                 });
 #pragma warning restore 612, 618
         }

@@ -23,7 +23,7 @@ namespace L5.Controllers
         public async Task<IActionResult> Index()
         {
               return _context.Movies != null ? 
-                          View(await _context.Movies.ToListAsync()) :
+                          View(await _context.Movies.Include(x => x.Genre).ToListAsync()) :
                           Problem("Entity set 'MoviesDbContext.Movies'  is null.");
         }
 
@@ -48,7 +48,8 @@ namespace L5.Controllers
         // GET: Home/Create
         public IActionResult Create()
         {
-            return View();
+            var m = new MovieDto { AllGenres = _context.Genres.Select(x => x.Name).ToList() };
+            return View(m);
         }
 
         // POST: Home/Create
@@ -56,11 +57,27 @@ namespace L5.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Rating,Title,Description,TrailerLink")] Movie movie)
+        public async Task<IActionResult> Create([Bind("Id,Title,Description,Rating,TrailerLink,Genre")] MovieDto movie)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(movie);
+                var genre = _context.Genres.FirstOrDefault(x => x.Name == movie.Genre);
+                if (genre == null)
+                {
+                    genre = new Genre { Id = 0, Name = movie.Genre };
+                }
+
+                Movie m = new Movie
+                {
+                    Id = 0,
+                    Title = movie.Title,
+                    Description = movie.Description,
+                    Rating = movie.Rating,
+                    TrailerLink = movie.TrailerLink,
+                    Genre = genre
+                };
+
+                _context.Add(m);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -70,17 +87,24 @@ namespace L5.Controllers
         // GET: Home/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Movies == null)
+            var movie = _context.Movies.FirstOrDefault(m => m.Id == id);
+            if (id == null || movie == null)
             {
                 return NotFound();
             }
 
-            var movie = await _context.Movies.FindAsync(id);
-            if (movie == null)
+            var m = new MovieDto
             {
-                return NotFound();
-            }
-            return View(movie);
+                Id = movie.Id,
+                Title = movie.Title,
+                Description = movie.Description,
+                Rating = movie.Rating,
+                TrailerLink = movie.TrailerLink,
+                Genre = movie.Genre?.Name,
+                AllGenres = _context.Genres.Select(x => x.Name).ToList()
+            };
+
+            return View(m);
         }
 
         // POST: Home/Edit/5
@@ -88,7 +112,7 @@ namespace L5.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Rating,Title,Description,TrailerLink")] Movie movie)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Rating,Title,Description,Genre,TrailerLink")] MovieDto movie)
         {
             if (id != movie.Id)
             {
@@ -99,7 +123,19 @@ namespace L5.Controllers
             {
                 try
                 {
-                    _context.Update(movie);
+                    Movie? m = _context.Movies.Include(x => x.Genre).FirstOrDefault(x => x.Id == id);
+                    Genre? genre = _context.Genres.FirstOrDefault(x => x.Name == movie.Genre);
+                    if (genre == null)
+                    {
+                        genre = new Genre { Id = 0, Name = movie.Genre };
+                    }
+
+                    m!.Title = movie.Title;
+                    m.Description = movie.Description;
+                    m.Rating = movie.Rating;
+                    m.TrailerLink = movie.TrailerLink;
+                    m.Genre = genre;
+                    _context.Update(m);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
