@@ -1,0 +1,75 @@
+@model L7.Models.Invoice
+
+@{
+    ViewData["Title"] = "OrderDetails";
+}
+
+<h1>OrderDetails</h1>
+
+<div>
+    <h4>Invoice</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.InvoiceDate)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.InvoiceDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.BillingAddress)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.Raw(Model.GetFullBillingAddress())
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Total)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Total)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Customer)
+        </dt>
+        <dd class="col-sm-10">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>
+                        @Html.Raw("Track ID")
+                    </th>
+                    <th>
+                        @Html.Raw("Track")
+                    </th>
+                    <th>
+                        @Html.Raw("Price")
+                    </th>
+                    <th>
+
+                    </th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model.InvoiceLines)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(m => item.TrackId)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(m => item.Track.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(m => item.UnitPrice)
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="MyOrders">Back to List</a>
+</div>
